@@ -46,18 +46,101 @@ describe("APP", () => {
           });
       });
     });
-  });
-  describe("Error Handling", () => {
-    describe("Invalid Endpoint", () => {
-      test("Responds with status:404 when given an invalid endpoint", () => {
+    describe("/api/articles/:article_id", () => {
+      test("Responds with Status 200 when given a valid article id number", () => {
+        return request(app).get("/api/articles/1").expect(200);
+      });
+      test("Will respond with just one article", () => {
         return request(app)
-          .get("/api/invalidEndpoint")
-          .expect(404)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe(
-              "Oh no! The path you are looking for does not exist!"
-            );
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article).toHaveLength(1);
           });
+      });
+      test("The return body will be an array with an object containing the correct keys", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(
+            ({
+              body: {
+                article: [article],
+              },
+            }) => {
+              expect(article).toEqual(
+                expect.objectContaining({
+                  article_id: expect.any(Number),
+                  title: expect.any(String),
+                  topic: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                })
+              );
+            }
+          );
+      });
+      test("When given a specified article_id it will return the correct article", () => {
+        return request(app)
+          .get("/api/articles/6")
+          .expect(200)
+          .then(
+            ({
+              body: {
+                article: [article],
+              },
+            }) => {
+              expect(article).toEqual(
+                expect.objectContaining({
+                  article_id: 6,
+                  title: "A",
+                  topic: "mitch",
+                  author: "icellusedkars",
+                  body: "Delicious tin of cat food",
+                  created_at: "2020-10-18T01:00:00.000Z",
+                  votes: 0,
+                })
+              );
+            }
+          );
+      });
+    });
+  });
+});
+describe("Error Handling", () => {
+  describe("Invalid Endpoint", () => {
+    test("Responds with status 404 when given an invalid endpoint", () => {
+      return request(app)
+        .get("/api/invalidEndpoint")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe(
+            "Oh no! The path you are looking for does not exist!"
+          );
+        });
+    });
+  });
+  describe("Get", () => {
+    describe("/api/articles/:article_id", () => {
+      describe("Status: 400", () => {
+        test("Responds with a msg when given an article_id number that does not exist in the database", () => {
+          return request(app)
+            .get("/api/articles/5000")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Sorry that id does not exist");
+            });
+        });
+        test("Responds with a msg stating invalid id when given a word instead of a number", () => {
+          return request(app)
+            .get("/api/articles/NotANumber")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Invalid id");
+            });
+        });
       });
     });
   });
