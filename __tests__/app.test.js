@@ -108,6 +108,103 @@ describe("APP", () => {
       });
     });
   });
+  describe("Patch", () => {
+    describe("/api/articles/:article_id", () => {
+      test("Responds with Status 200 and the article when all information required is correct", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: 1 })
+          .expect(200)
+          .then(
+            ({
+              body: {
+                article: [article],
+              },
+            }) => {
+              expect(article).toEqual(
+                expect.objectContaining({
+                  article_id: 1,
+                  title: expect.any(String),
+                  topic: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                })
+              );
+            }
+          );
+      });
+      test("When given inc_votes: 1, it will return test article 1 with 101 votes", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: 1 })
+          .expect(200)
+          .then(
+            ({
+              body: {
+                article: [article],
+              },
+            }) => {
+              expect(article.votes).toBe(101);
+            }
+          );
+      });
+      test("When given inc_votes: -100, it will return test article 1 with 0 votes", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: -100 })
+          .expect(200)
+          .then(
+            ({
+              body: {
+                article: [article],
+              },
+            }) => {
+              expect(article).toEqual(
+                expect.objectContaining({
+                  votes: 0,
+                })
+              );
+            }
+          );
+      });
+      test("When given multiple instances of votes it will correctly update each time, E.G. inc_votes:1 repeated twice on article 1 returns votes: 102", () => {
+        const patch = () => {
+          return request(app)
+            .patch("/api/articles/1")
+            .send({ inc_votes: 1 })
+            .then(
+              ({
+                body: {
+                  article: [article],
+                },
+              }) => {
+                return article;
+              }
+            );
+        };
+        return Promise.all([patch(), patch()]).then((promise) => {
+          expect(promise[0].votes).toBe(101);
+          expect(promise[1].votes).toBe(102);
+        });
+      });
+      test("Will return a negative number with an article with 0 votes gets a patch with inc_votes: -1 (No constraint for negative values)", () => {
+        return request(app)
+          .patch("/api/articles/2")
+          .send({ inc_votes: -1 })
+          .then(
+            ({
+              body: {
+                article: [article],
+              },
+            }) => {
+              expect(article.votes).toBe(-1);
+            }
+          );
+      });
+    });
+  });
 });
 describe("Error Handling", () => {
   describe("Invalid Endpoint", () => {
@@ -139,6 +236,39 @@ describe("Error Handling", () => {
             .expect(400)
             .then((response) => {
               expect(response.body.msg).toBe("Invalid id");
+            });
+        });
+      });
+    });
+  });
+  describe("Patch", () => {
+    describe("/api/articles/:article_id", () => {
+      describe("Status 400", () => {
+        test("Returns a msg when trying to patch and article with an id that does not exist", () => {
+          return request(app)
+            .patch("/api/articles/500")
+            .send({ inc_votes: 1 })
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Sorry that id does not exist");
+            });
+        });
+        test("Responds with a msg when article id exists but there is no inc_votes on the request body", () => {
+          return request(app)
+            .patch("/api/articles/1")
+            .send({})
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+        test("Responds with a msg when article id exists but inc_votes is a word and not the required number", () => {
+          return request(app)
+            .patch("/api/articles/1")
+            .send({ inc_votes: "cat" })
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
             });
         });
       });
