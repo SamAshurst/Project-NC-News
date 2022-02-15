@@ -222,15 +222,15 @@ describe("Error Handling", () => {
   describe("Get", () => {
     describe("/api/articles/:article_id", () => {
       describe("Status: 400", () => {
-        test("Responds with a msg when given an article_id number that does not exist in the database", () => {
+        test("Status: 404 - Responds with a msg when given an article_id number that does not exist in the database", () => {
           return request(app)
             .get("/api/articles/5000")
-            .expect(400)
+            .expect(404)
             .then((response) => {
               expect(response.body.msg).toBe("Sorry that id does not exist");
             });
         });
-        test("Responds with a msg stating invalid id when given a word instead of a number", () => {
+        test("Status: 400 - Responds with a msg stating invalid id when given a word instead of a number", () => {
           return request(app)
             .get("/api/articles/NotANumber")
             .expect(400)
@@ -244,16 +244,16 @@ describe("Error Handling", () => {
   describe("Patch", () => {
     describe("/api/articles/:article_id", () => {
       describe("Status 400", () => {
-        test("Returns a msg when trying to patch and article with an id that does not exist", () => {
+        test("Status: 404 - Returns a msg when trying to patch and article with an id that does not exist", () => {
           return request(app)
             .patch("/api/articles/500")
             .send({ inc_votes: 1 })
-            .expect(400)
+            .expect(404)
             .then((response) => {
               expect(response.body.msg).toBe("Sorry that id does not exist");
             });
         });
-        test("Responds with a msg when article id exists but there is no inc_votes on the request body", () => {
+        test("Status: 400 - Responds with a msg when article id exists but there is no inc_votes on the request body", () => {
           return request(app)
             .patch("/api/articles/1")
             .send({})
@@ -262,7 +262,7 @@ describe("Error Handling", () => {
               expect(response.body.msg).toBe("Bad Request");
             });
         });
-        test("Responds with a msg when article id exists but inc_votes is a word and not the required number", () => {
+        test("Status: 400 - Responds with a msg when article id exists but inc_votes is a word and not the required number", () => {
           return request(app)
             .patch("/api/articles/1")
             .send({ inc_votes: "cat" })

@@ -17,6 +17,7 @@ app.get("/api/articles/:article_id", getArticleById);
 app.patch("/api/articles/:article_id", patchArticleById);
 
 app.all("/*", invalidEndpoint);
-app.use(handleCustomErrors);
 app.use(handlePsqlErrors);
+app.use(handleCustomErrors);
+
 module.exports = app;

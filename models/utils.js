@@ -1,7 +1,7 @@
-exports.articleChecker = (article) => {
+exports.articleIdChecker = (article) => {
   if (!article.length) {
     return Promise.reject({
-      status: 400,
+      status: 404,
       msg: "Sorry that id does not exist",
     });
   }

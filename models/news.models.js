@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { articleChecker } = require("./utils.js");
+const { articleIdChecker } = require("./utils.js");
 
 exports.fetchTopics = () => {
   return db.query(`SELECT * FROM topics;`).then(({ rows: topics }) => {
@@ -14,7 +14,7 @@ exports.fetchArticleById = (id) => {
   return db
     .query(`SELECT * FROM articles WHERE article_id = $1;`, [id])
     .then(({ rows: article }) => {
-      return articleChecker(article);
+      return articleIdChecker(article);
     });
 };
 
@@ -25,6 +25,6 @@ exports.updateArticleById = (id, votes) => {
       [votes, id]
     )
     .then(({ rows: article }) => {
-      return articleChecker(article);
+      return articleIdChecker(article);
     });
 };
