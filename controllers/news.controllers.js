@@ -1,9 +1,27 @@
-const { fetchTopics, fetchArticleById } = require("../models/news.models.js");
+const {
+  fetchTopics,
+  fetchUsers,
+  fetchArticleById,
+} = require("../models/news.models.js");
 
 exports.getTopics = (req, res, next) => {
-  fetchTopics().then((topics) => {
-    res.status(200).send({ topics });
-  });
+  fetchTopics()
+    .then((topics) => {
+      res.status(200).send({ topics });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getUsers = (req, res, next) => {
+  fetchUsers()
+    .then((users) => {
+      res.status(200).send({ users });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.getArticleById = (req, res, next) => {
