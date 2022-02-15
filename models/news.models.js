@@ -36,8 +36,12 @@ exports.fetchArticleById = (id) => {
     return Promise.reject({ status: 400, msg: "Invalid id" });
   }
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1;`, [id])
-    .then(({ rows: article }) => {
+    .query(
+      `SELECT articles.*, COUNT(comments.article_id)::int AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id WHERE articles.article_id = $1
+      GROUP BY articles.article_id;`,
+      [id]
+    )
+    .then(({ rows: [article] }) => {
       return articleIdChecker(article);
     });
 };
@@ -48,7 +52,7 @@ exports.updateArticleById = (id, votes) => {
       `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *;`,
       [votes, id]
     )
-    .then(({ rows: article }) => {
+    .then(({ rows: [article] }) => {
       return articleIdChecker(article);
     });
 };
