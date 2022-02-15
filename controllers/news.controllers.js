@@ -1,7 +1,7 @@
 const {
   fetchTopics,
   fetchUsers,
-  fetchArticleById,
+  fetchArticles,
   fetchArticleById,
   updateArticleById,
 } = require("../models/news.models.js");
@@ -20,6 +20,16 @@ exports.getUsers = (req, res, next) => {
   fetchUsers()
     .then((users) => {
       res.status(200).send({ users });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getArticles = (req, res, next) => {
+  fetchArticles()
+    .then((articles) => {
+      res.status(200).send({ articles });
     })
     .catch((err) => {
       next(err);
