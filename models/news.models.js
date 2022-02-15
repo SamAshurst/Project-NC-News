@@ -7,6 +7,12 @@ exports.fetchTopics = () => {
   });
 };
 
+exports.fetchUsers = () => {
+  return db.query(`SELECT username FROM users`).then(({ rows: users }) => {
+    return users;
+  });
+};
+
 exports.fetchArticleById = (id) => {
   if (isNaN(Number(id))) {
     return Promise.reject({ status: 400, msg: "Invalid id" });

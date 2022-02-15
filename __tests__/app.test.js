@@ -107,6 +107,42 @@ describe("APP", () => {
           );
       });
     });
+    describe("/api/users", () => {
+      test("Responds with Status 200", () => {
+        return request(app).get("/api/users").expect(200);
+      });
+      test("The response body that is returned will be an array of objects", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body: { users } }) => {
+            expect(Array.isArray(users)).toBe(true);
+            expect(typeof users[0]).toBe("object");
+          });
+      });
+      test("The response will return the correct amount of users", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body: { users } }) => {
+            expect(users).toHaveLength(4);
+          });
+      });
+      test("It will only contain the usernames of the users and no other information", () => {
+        const expectedResponse = [
+          { username: "butter_bridge" },
+          { username: "icellusedkars" },
+          { username: "rogersop" },
+          { username: "lurker" },
+        ];
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body: { users } }) => {
+            expect(users).toEqual(expectedResponse);
+          });
+      });
+    });
   });
   describe("Patch", () => {
     describe("/api/articles/:article_id", () => {
