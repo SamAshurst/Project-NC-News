@@ -50,61 +50,69 @@ describe("APP", () => {
       test("Responds with Status 200 when given a valid article id number", () => {
         return request(app).get("/api/articles/1").expect(200);
       });
-      test("Will respond with just one article", () => {
+      test("The return body will be an object containing the correct keys", () => {
         return request(app)
           .get("/api/articles/1")
           .expect(200)
           .then(({ body: { article } }) => {
-            expect(article).toHaveLength(1);
+            expect(article).toEqual(
+              expect.objectContaining({
+                article_id: expect.any(Number),
+                title: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+              })
+            );
           });
-      });
-      test("The return body will be an array with an object containing the correct keys", () => {
-        return request(app)
-          .get("/api/articles/1")
-          .expect(200)
-          .then(
-            ({
-              body: {
-                article: [article],
-              },
-            }) => {
-              expect(article).toEqual(
-                expect.objectContaining({
-                  article_id: expect.any(Number),
-                  title: expect.any(String),
-                  topic: expect.any(String),
-                  author: expect.any(String),
-                  body: expect.any(String),
-                  created_at: expect.any(String),
-                  votes: expect.any(Number),
-                })
-              );
-            }
-          );
       });
       test("When given a specified article_id it will return the correct article", () => {
         return request(app)
           .get("/api/articles/6")
           .expect(200)
-          .then(
-            ({
-              body: {
-                article: [article],
-              },
-            }) => {
-              expect(article).toEqual(
-                expect.objectContaining({
-                  article_id: 6,
-                  title: "A",
-                  topic: "mitch",
-                  author: "icellusedkars",
-                  body: "Delicious tin of cat food",
-                  created_at: "2020-10-18T01:00:00.000Z",
-                  votes: 0,
-                })
-              );
-            }
-          );
+          .then(({ body: { article } }) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                article_id: 6,
+                title: "A",
+                topic: "mitch",
+                author: "icellusedkars",
+                body: "Delicious tin of cat food",
+                created_at: "2020-10-18T01:00:00.000Z",
+                votes: 0,
+              })
+            );
+          });
+      });
+      test("Feature Request - the specfied article will now return with a key of comment_count", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                comment_count: expect.any(Number),
+              })
+            );
+          });
+      });
+      test("Feature Request - comment_count will have the correct value of 2 when making a request to get article 5", () => {
+        return request(app)
+          .get("/api/articles/5")
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article.comment_count).toBe(2);
+          });
+      });
+      test("Feature Request - comment_count will have the correct value of 0 when making a request to get article 2", () => {
+        return request(app)
+          .get("/api/articles/2")
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article.comment_count).toBe(0);
+          });
       });
     });
     describe("/api/users", () => {
@@ -208,74 +216,50 @@ describe("APP", () => {
           .patch("/api/articles/1")
           .send({ inc_votes: 1 })
           .expect(200)
-          .then(
-            ({
-              body: {
-                article: [article],
-              },
-            }) => {
-              expect(article).toEqual(
-                expect.objectContaining({
-                  article_id: 1,
-                  title: expect.any(String),
-                  topic: expect.any(String),
-                  author: expect.any(String),
-                  body: expect.any(String),
-                  created_at: expect.any(String),
-                  votes: expect.any(Number),
-                })
-              );
-            }
-          );
+          .then(({ body: { article } }) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                article_id: 1,
+                title: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+              })
+            );
+          });
       });
       test("When given inc_votes: 1, it will return test article 1 with 101 votes", () => {
         return request(app)
           .patch("/api/articles/1")
           .send({ inc_votes: 1 })
           .expect(200)
-          .then(
-            ({
-              body: {
-                article: [article],
-              },
-            }) => {
-              expect(article.votes).toBe(101);
-            }
-          );
+          .then(({ body: { article } }) => {
+            expect(article.votes).toBe(101);
+          });
       });
       test("When given inc_votes: -100, it will return test article 1 with 0 votes", () => {
         return request(app)
           .patch("/api/articles/1")
           .send({ inc_votes: -100 })
           .expect(200)
-          .then(
-            ({
-              body: {
-                article: [article],
-              },
-            }) => {
-              expect(article).toEqual(
-                expect.objectContaining({
-                  votes: 0,
-                })
-              );
-            }
-          );
+          .then(({ body: { article } }) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                votes: 0,
+              })
+            );
+          });
       });
       test("When given multiple instances of votes it will correctly update each time, E.G. inc_votes:1 repeated twice on article 1 returns votes: 102", () => {
         const patch = () => {
           return request(app)
             .patch("/api/articles/1")
             .send({ inc_votes: 1 })
-            .then(
-              ({
-                body: {
-                  article: [article],
-                },
-              }) => {
-                return article;
-              }
-            );
+            .then(({ body: { article } }) => {
+              return article;
+            });
         };
         return Promise.all([patch(), patch()]).then((promise) => {
           expect(promise[0].votes).toBe(101);
@@ -286,15 +270,9 @@ describe("APP", () => {
         return request(app)
           .patch("/api/articles/2")
           .send({ inc_votes: -1 })
-          .then(
-            ({
-              body: {
-                article: [article],
-              },
-            }) => {
-              expect(article.votes).toBe(-1);
-            }
-          );
+          .then(({ body: { article } }) => {
+            expect(article.votes).toBe(-1);
+          });
       });
     });
   });
