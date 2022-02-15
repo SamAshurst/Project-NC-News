@@ -164,7 +164,7 @@ describe("APP", () => {
             expect(articles).toHaveLength(12);
           });
       });
-      test("The array of article objects will have contain the correct keys", () => {
+      test("The array of article objects will contain the correct keys", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
