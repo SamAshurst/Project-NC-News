@@ -143,6 +143,63 @@ describe("APP", () => {
           });
       });
     });
+    describe("/api/articles", () => {
+      test("Responds with Status 200", () => {
+        return request(app).get("/api/articles").expect(200);
+      });
+      test("The body that is returned will be an array of objects", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(Array.isArray(articles)).toBe(true);
+            expect(typeof articles[0]).toBe("object");
+          });
+      });
+      test("The response will return all of the articles, 12 in the test database", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toHaveLength(12);
+          });
+      });
+      test("The array of article objects will contain the correct keys", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            articles.forEach((article) => {
+              expect(article).toEqual(
+                expect.objectContaining({
+                  article_id: expect.any(Number),
+                  title: expect.any(String),
+                  topic: expect.any(String),
+                  author: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                })
+              );
+              expect(article).toEqual(
+                expect.not.objectContaining({
+                  body: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+      test("The articles will be ordered by created_at in descending order", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSorted({
+              key: "created_at",
+              descending: true,
+            });
+          });
+      });
+    });
   });
   describe("Patch", () => {
     describe("/api/articles/:article_id", () => {

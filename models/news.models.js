@@ -13,6 +13,24 @@ exports.fetchUsers = () => {
   });
 };
 
+exports.fetchArticles = () => {
+  return db
+    .query(
+      `SELECT
+       article_id, 
+       title, 
+       topic, 
+       author, 
+       created_at, 
+       votes 
+      FROM articles
+      ORDER BY created_at DESC;`
+    )
+    .then(({ rows: articles }) => {
+      return articles;
+    });
+};
+
 exports.fetchArticleById = (id) => {
   if (isNaN(Number(id))) {
     return Promise.reject({ status: 400, msg: "Invalid id" });
