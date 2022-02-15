@@ -8,7 +8,7 @@ exports.fetchTopics = () => {
 };
 
 exports.fetchUsers = () => {
-  return db.query(`SELECT username FROM users`).then(({ rows: users }) => {
+  return db.query(`SELECT username FROM users;`).then(({ rows: users }) => {
     return users;
   });
 };
