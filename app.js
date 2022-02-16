@@ -4,17 +4,21 @@ const {
   getArticleById,
   getUsers,
   getArticles,
+  getCommentsByArticleId,
   patchArticleById,
 } = require("./controllers/news.controllers.js");
+
 const {
   invalidEndpoint,
   handleCustomErrors,
   handlePsqlErrors,
 } = require("./controllers/errors.controllers.js");
+
 const app = express();
 app.use(express.json());
 
 app.get("/api/topics", getTopics);
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getArticles);
 app.get("/api/users", getUsers);

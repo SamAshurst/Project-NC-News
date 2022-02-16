@@ -37,12 +37,37 @@ exports.fetchArticleById = (id) => {
   }
   return db
     .query(
-      `SELECT articles.*, COUNT(comments.article_id)::int AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id WHERE articles.article_id = $1
+      `SELECT articles.*, 
+      COUNT(comments.article_id)::int AS comment_count 
+      FROM articles 
+      LEFT JOIN comments 
+      ON comments.article_id = articles.article_id 
+      WHERE articles.article_id = $1
       GROUP BY articles.article_id;`,
       [id]
     )
     .then(({ rows: [article] }) => {
       return articleIdChecker(article);
+    });
+};
+
+exports.fetchCommentsByArticleId = (id) => {
+  if (isNaN(Number(id))) {
+    return Promise.reject({ status: 400, msg: "Invalid id" });
+  }
+  return db
+    .query(
+      `SELECT comment_id, 
+      body, 
+      votes, 
+      author, 
+      created_at 
+      FROM comments 
+      WHERE article_id = $1;`,
+      [id]
+    )
+    .then(({ rows: comments }) => {
+      return comments;
     });
 };
 

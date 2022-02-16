@@ -208,6 +208,54 @@ describe("APP", () => {
           });
       });
     });
+    describe("/api/articles/:article_id/comments", () => {
+      test("Responds with status 200", () => {
+        return request(app).get("/api/articles/1/comments").expect(200);
+      });
+      test("The response will be an array of all the comments in objects", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(Array.isArray(comments)).toBe(true);
+            expect(typeof comments[0]).toBe("object");
+          });
+      });
+      test("It will return the correct amount of comments fo the specified article, article 1 should return 11 comments", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments).toHaveLength(11);
+          });
+      });
+      test("The return body will be an object containing the correct keys", () => {
+        return request(app)
+          .get("/api/articles/1/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            comments.forEach((comment) => {
+              expect(comment).toEqual(
+                expect.objectContaining({
+                  comment_id: expect.any(Number),
+                  body: expect.any(String),
+                  author: expect.any(String),
+                  created_at: expect.any(String),
+                  votes: expect.any(Number),
+                })
+              );
+            });
+          });
+      });
+      test("Will return an empty array when the article_id exists but there are no comments on the article yet", () => {
+        return request(app)
+          .get("/api/articles/2/comments")
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments).toHaveLength(0);
+          });
+      });
+    });
   });
   describe("Patch", () => {
     describe("/api/articles/:article_id", () => {
@@ -306,6 +354,28 @@ describe("Error Handling", () => {
         test("Status: 404 - Responds with a msg when given an article_id number that does not exist in the database", () => {
           return request(app)
             .get("/api/articles/5000")
+            .expect(404)
+            .then((response) => {
+              expect(response.body.msg).toBe("Sorry that id does not exist");
+            });
+        });
+      });
+    });
+    describe("/api/articles/:article_id/comments", () => {
+      describe("Status: 400", () => {
+        test("Status: 400 - Responds with a msg stating invalid id when given a word instead of a number", () => {
+          return request(app)
+            .get("/api/articles/NotANumber/comments")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Invalid id");
+            });
+        });
+      });
+      describe("Status: 404", () => {
+        test("Status: 404 - Responds with a msg when given an article_id number that does not exist in the database", () => {
+          return request(app)
+            .get("/api/articles/100/comments")
             .expect(404)
             .then((response) => {
               expect(response.body.msg).toBe("Sorry that id does not exist");
