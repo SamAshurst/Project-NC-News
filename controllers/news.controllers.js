@@ -3,8 +3,10 @@ const {
   fetchUsers,
   fetchArticles,
   fetchArticleById,
+  fetchCommentsByArticleId,
   updateArticleById,
 } = require("../models/news.models.js");
+const { checkArticleExists } = require("../models/utils");
 
 exports.getTopics = (req, res, next) => {
   fetchTopics()
@@ -41,6 +43,17 @@ exports.getArticleById = (req, res, next) => {
   fetchArticleById(id)
     .then((article) => {
       res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  const id = req.params.article_id;
+  Promise.all([fetchCommentsByArticleId(id), checkArticleExists(id)])
+    .then(([comments]) => {
+      res.status(200).send({ comments });
     })
     .catch((err) => {
       next(err);
