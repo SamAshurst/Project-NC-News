@@ -207,6 +207,35 @@ describe("APP", () => {
             });
           });
       });
+      test("Feature Request - The articles returned will no include a key of comment_count", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            articles.forEach((article) => {
+              expect(article).toEqual(
+                expect.objectContaining({
+                  comment_count: expect.any(Number),
+                })
+              );
+            });
+          });
+      });
+      test("Feature Request - The comment_count is the correct value for each article", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            const commentCountByArticleOrder = [
+              2, 1, 0, 0, 2, 11, 2, 0, 0, 0, 0, 0,
+            ];
+            articles.forEach((article, index) => {
+              expect(article.comment_count).toEqual(
+                commentCountByArticleOrder[index]
+              );
+            });
+          });
+      });
     });
   });
   describe("Patch", () => {
