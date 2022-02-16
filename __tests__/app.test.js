@@ -324,6 +324,62 @@ describe("APP", () => {
       });
     });
   });
+  describe("Post", () => {
+    describe("/api/articles/:article_id/comments", () => {
+      test("Reponds with Status 201", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .send({ username: "butter_bridge", body: "Test comment" })
+          .expect(201);
+      });
+      test("A successful post will return the newly created comment with the additional keys used to create the comment", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .send({ username: "butter_bridge", body: "Test comment" })
+          .expect(201)
+          .then(({ body: { comment } }) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: 19,
+                article_id: 1,
+                author: "butter_bridge",
+                body: "Test comment",
+                created_at: expect.any(String),
+                votes: 0,
+              })
+            );
+          });
+      });
+      test("When posting multiple comments, the comment_id correctly increases (The database reseeds after each test, mimics real use case", () => {
+        const postComment = (comment) => {
+          const newComment = { username: "butter_bridge" };
+          newComment["body"] = comment;
+          return request(app)
+            .post("/api/articles/1/comments")
+            .send(newComment)
+            .then(({ body: { comment } }) => {
+              return comment;
+            });
+        };
+        return Promise.all([postComment("first"), postComment("second")]).then(
+          ([first, second]) => {
+            expect(first).toEqual(
+              expect.objectContaining({
+                comment_id: 19,
+                body: "first",
+              })
+            );
+            expect(second).toEqual(
+              expect.objectContaining({
+                comment_id: 20,
+                body: "second",
+              })
+            );
+          }
+        );
+      });
+    });
+  });
 });
 describe("Error Handling", () => {
   describe("Invalid Endpoint", () => {
@@ -420,3 +476,5 @@ describe("Error Handling", () => {
     });
   });
 });
+// START ON ERROR HANDLING FOR POST COMMENT
+// 17TH FEB

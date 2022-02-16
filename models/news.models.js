@@ -70,6 +70,21 @@ exports.fetchCommentsByArticleId = (id) => {
     });
 };
 
+exports.insertCommentByArticleId = (id, username, commentBody) => {
+  return db
+    .query(
+      `INSERT INTO comments
+      (article_id, author, body)
+      VALUES
+      ($1, $2, $3)
+      RETURNING *;`,
+      [id, username, commentBody]
+    )
+    .then(({ rows: [comment] }) => {
+      return comment;
+    });
+};
+
 exports.updateArticleById = (id, votes) => {
   return db
     .query(

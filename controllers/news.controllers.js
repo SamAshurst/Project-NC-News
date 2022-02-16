@@ -4,6 +4,7 @@ const {
   fetchArticles,
   fetchArticleById,
   fetchCommentsByArticleId,
+  insertCommentByArticleId,
   updateArticleById,
 } = require("../models/news.models.js");
 const { checkArticleExists } = require("../models/utils");
@@ -56,6 +57,20 @@ exports.getCommentsByArticleId = (req, res, next) => {
       res.status(200).send({ comments });
     })
     .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postCommentByArticleId = (req, res, next) => {
+  const id = req.params.article_id;
+  const username = req.body.username;
+  const commentBody = req.body.body;
+  insertCommentByArticleId(id, username, commentBody)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      console.log(err);
       next(err);
     });
 };
