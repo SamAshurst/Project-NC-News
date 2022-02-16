@@ -40,8 +40,8 @@ exports.getArticles = (req, res, next) => {
 
 exports.getArticleById = (req, res, next) => {
   const id = req.params.article_id;
-  fetchArticleById(id)
-    .then((article) => {
+  Promise.all([fetchArticleById(id), checkArticleExists(id)])
+    .then(([article]) => {
       res.status(200).send({ article });
     })
     .catch((err) => {
@@ -63,8 +63,8 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.patchArticleById = (req, res, next) => {
   const id = req.params.article_id;
   const votes = req.body.inc_votes;
-  updateArticleById(id, votes)
-    .then((article) => {
+  Promise.all([updateArticleById(id, votes), checkArticleExists(id)])
+    .then(([article]) => {
       res.status(200).send({ article });
     })
     .catch((err) => {
