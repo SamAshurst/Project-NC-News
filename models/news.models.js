@@ -73,6 +73,24 @@ exports.fetchCommentsByArticleId = (id) => {
     });
 };
 
+exports.insertCommentByArticleId = (id, username, commentBody) => {
+  if (typeof commentBody !== "string") {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  return db
+    .query(
+      `INSERT INTO comments
+      (article_id, author, body)
+      VALUES
+      ($1, $2, $3)
+      RETURNING *;`,
+      [id, username, commentBody]
+    )
+    .then(({ rows: [comment] }) => {
+      return comment;
+    });
+};
+
 exports.updateArticleById = (id, votes) => {
   return db
     .query(
