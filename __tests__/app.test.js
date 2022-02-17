@@ -236,6 +236,71 @@ describe("APP", () => {
             });
           });
       });
+      test("Feature Request Queries - User is able to sort_by a valid column with default descening order", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=title")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSorted({
+              key: "title",
+              descending: true,
+            });
+          });
+      });
+      test("Feature Request Queries - Returns all articles sorted by votes", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=votes")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSorted({
+              key: "votes",
+              descending: true,
+            });
+          });
+      });
+      test("Feature Request Queries - User is now able to sort by ascending for the valid column", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=title&order=asc")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSorted({
+              key: "title",
+              ascending: true,
+            });
+          });
+      });
+      test("Feature Request Queries - User can filter topics with the topic query", () => {
+        return request(app)
+          .get("/api/articles/?topic=mitch")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            articles.forEach((article) => {
+              expect(article.topic).toEqual("mitch");
+            });
+          });
+      });
+      test("Feature Request Queries - Returns an empty array when searching for a topic that exists but has no articles", () => {
+        return request(app)
+          .get("/api/articles/?topic=paper")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toHaveLength(0);
+          });
+      });
+      test("Feature Request Queries - Able to chain sort_by, order and topic query", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=author&order=asc&topic=mitch")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSorted({
+              key: "author",
+              ascending: true,
+            });
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+          });
+      });
     });
     describe("/api/articles/:article_id/comments", () => {
       test("Responds with status 200", () => {
@@ -474,6 +539,52 @@ describe("Error Handling", () => {
             .expect(404)
             .then((response) => {
               expect(response.body.msg).toBe("Sorry that id does not exist");
+            });
+        });
+      });
+    });
+    describe("/api/articles/ - queries", () => {
+      describe("Status: 400", () => {
+        test("Status: 400 - Feature Request Queries - Responds with a msg when trying to sort_by a column that doesn't exist", () => {
+          return request(app)
+            .get("/api/articles/?sort_by=NotAColumn")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Invalid sort query");
+            });
+        });
+        test("Status: 400 - Feature Request Queries - Responds with a msg when trying to order by something other than asc or desc", () => {
+          return request(app)
+            .get("/api/articles/?order=RandomOrder")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Invalid order query");
+            });
+        });
+        test("Status: 400 - Feature Request Queries - Responds with a msg when given an invalid query, E.G. misspelt topic", () => {
+          return request(app)
+            .get("/api/articles/?topi=mitch")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+        test("Status: 400 - Feature Request Queries - Responds with a msg when given an a chain of queries and one is invalid", () => {
+          return request(app)
+            .get("/api/articles/?sortby=author&order=asc&topic=mitch")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+      });
+      describe("Status: 404", () => {
+        test("Status: 404 - Feature Request Queries - Responds with a msg when trying to filter by a topic that does not exist", () => {
+          return request(app)
+            .get("/api/articles/?topic=NotATopic")
+            .expect(404)
+            .then((response) => {
+              expect(response.body.msg).toBe("Sorry that topic does not exist");
             });
         });
       });
