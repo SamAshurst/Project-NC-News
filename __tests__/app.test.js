@@ -350,6 +350,16 @@ describe("APP", () => {
           });
       });
     });
+    describe("/api", () => {
+      test("Responds with Status 200 and a JSON file with all available endpoints", () => {
+        return request(app)
+          .get("/api")
+          .expect(200)
+          .then(({ body }) => {
+            expect(typeof body).toBe("object");
+          });
+      });
+    });
   });
   describe("Patch", () => {
     describe("/api/articles/:article_id", () => {

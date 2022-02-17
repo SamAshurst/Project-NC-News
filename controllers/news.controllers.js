@@ -14,6 +14,7 @@ const {
   checkQueryIsValid,
   checkCommentExists,
 } = require("../models/utils");
+const endpointJson = require("../endpoints.json");
 
 exports.getTopics = (req, res, next) => {
   fetchTopics()
@@ -115,4 +116,8 @@ exports.removeCommentById = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.getEndpoints = (req, res, next) => {
+  res.status(200).send(endpointJson);
 };
