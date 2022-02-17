@@ -236,6 +236,71 @@ describe("APP", () => {
             });
           });
       });
+      test("Feature Request Queries - User is able to sort_by a valid column with default descening order", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=title")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSorted({
+              key: "title",
+              descending: true,
+            });
+          });
+      });
+      test("Feature Request Queries - Returns all articles sorted by votes", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=votes")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSorted({
+              key: "votes",
+              descending: true,
+            });
+          });
+      });
+      test("Feature Request Queries - User is now able to sort by ascending for the valid column", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=title&order=asc")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSorted({
+              key: "title",
+              ascending: true,
+            });
+          });
+      });
+      test("Feature Request Queries - User can filter topics with the topic query", () => {
+        return request(app)
+          .get("/api/articles/?topic=mitch")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            articles.forEach((article) => {
+              expect(article.topic).toEqual("mitch");
+            });
+          });
+      });
+      test("Feature Request Queries - Returns an empty array when searching for a topic that exists but has no articles", () => {
+        return request(app)
+          .get("/api/articles/?topic=paper")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toHaveLength(0);
+          });
+      });
+      test("Feature Request Queries - Able to chain sort_by, order and topic query", () => {
+        return request(app)
+          .get("/api/articles/?sort_by=author&order=asc&topic=mitch")
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles).toBeSorted({
+              key: "author",
+              ascending: true,
+            });
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+          });
+      });
     });
     describe("/api/articles/:article_id/comments", () => {
       test("Responds with status 200", () => {
