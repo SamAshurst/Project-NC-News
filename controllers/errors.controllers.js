@@ -12,10 +12,15 @@ exports.handleCustomErrors = (err, req, res, next) => {
 
 exports.handlePsqlErrors = (err, req, res, next) => {
   const psqlBadRequestCodes = ["23502", "22P02"];
-  const psqlUnauthorised = ["23503"];
-
+  const psqlSortByCode = ["42703"];
+  const psqlOrderCode = ["42601"];
+  
   if (psqlBadRequestCodes.includes(err.code)) {
     res.status(400).send({ msg: "Bad Request" });
+  } else if (psqlSortByCode.includes(err.code)) {
+    res.status(400).send({ msg: "Invalid sort query" });
+  } else if (psqlOrderCode.includes(err.code)) {
+    res.status(400).send({ msg: "Invalid order query" });
   } else if (psqlUnauthorised.includes(err.code)) {
     res.status(401).send({ msg: "Unauthorised user" });
   } else next(err);
