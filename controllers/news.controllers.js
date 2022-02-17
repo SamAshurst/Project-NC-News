@@ -6,11 +6,13 @@ const {
   fetchCommentsByArticleId,
   insertCommentByArticleId,
   updateArticleById,
+  deleteCommentById,
 } = require("../models/news.models.js");
 const {
   checkArticleExists,
   checkTopicExists,
   checkQueryIsValid,
+  checkCommentExists,
 } = require("../models/utils");
 const endpointJson = require("../endpoints.json");
 
@@ -98,6 +100,18 @@ exports.patchArticleById = (req, res, next) => {
   Promise.all([updateArticleById(id, votes), checkArticleExists(id)])
     .then(([article]) => {
       res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.removeCommentById = (req, res, next) => {
+  const id = req.params.comment_id;
+
+  Promise.all([checkCommentExists(id), deleteCommentById(id)])
+    .then(() => {
+      res.sendStatus(204);
     })
     .catch((err) => {
       next(err);
