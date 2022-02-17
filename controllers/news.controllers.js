@@ -12,6 +12,7 @@ const {
   checkTopicExists,
   checkQueryIsValid,
 } = require("../models/utils");
+const endpointJson = require("../endpoints.json");
 
 exports.getTopics = (req, res, next) => {
   fetchTopics()
@@ -101,4 +102,8 @@ exports.patchArticleById = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.getEndpoints = (req, res, next) => {
+  res.status(200).send(endpointJson);
 };
