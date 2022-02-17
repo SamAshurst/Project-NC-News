@@ -36,24 +36,6 @@ exports.fetchArticles = (sortBy = "created_at", order = "DESC", topic) => {
   return db.query(queryStr, values).then(({ rows: articles }) => {
     return articles;
   });
-  // return db
-  //   .query(
-  //     `SELECT
-  //     articles.article_id,
-  //     articles.title,
-  //     articles.topic,
-  //     articles.author,
-  //     articles.created_at,
-  //     articles.votes,
-  //     COUNT(comments.article_id)::int AS comment_count
-  //    FROM articles
-  //    LEFT JOIN comments ON comments.article_id = articles.article_id
-  //    GROUP BY articles.article_id
-  //    ORDER BY created_at DESC;`
-  //   )
-  //   .then(({ rows: articles }) => {
-  //     return articles;
-  //   });
 };
 
 exports.fetchArticleById = (id) => {
