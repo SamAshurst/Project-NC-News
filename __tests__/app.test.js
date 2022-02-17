@@ -477,6 +477,52 @@ describe("Error Handling", () => {
         });
       });
     });
+    describe("/api/articles/ - queries", () => {
+      describe("Status: 400", () => {
+        test("Status: 400 - Feature Request Queries - Responds with a msg when trying to sort_by a column that doesn't exist", () => {
+          return request(app)
+            .get("/api/articles/?sort_by=NotAColumn")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Invalid sort query");
+            });
+        });
+        test("Status: 400 - Feature Request Queries - Responds with a msg when trying to order by something other than asc or desc", () => {
+          return request(app)
+            .get("/api/articles/?order=RandomOrder")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Invalid order query");
+            });
+        });
+        test("Status: 400 - Feature Request Queries - Responds with a msg when given an invalid query, E.G. misspelt topic", () => {
+          return request(app)
+            .get("/api/articles/?topi=mitch")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+        test("Status: 400 - Feature Request Queries - Responds with a msg when given an a chain of queries and one is invalid", () => {
+          return request(app)
+            .get("/api/articles/?sortby=author&order=asc&topic=mitch")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+      });
+      describe("Status: 404", () => {
+        test("Status: 404 - Feature Request Queries - Responds with a msg when trying to filter by a topic that does not exist", () => {
+          return request(app)
+            .get("/api/articles/?topic=NotATopic")
+            .expect(404)
+            .then((response) => {
+              expect(response.body.msg).toBe("Sorry that topic does not exist");
+            });
+        });
+      });
+    });
   });
   describe("Patch", () => {
     describe("/api/articles/:article_id", () => {

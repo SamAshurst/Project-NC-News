@@ -6,7 +6,11 @@ const {
   fetchCommentsByArticleId,
   updateArticleById,
 } = require("../models/news.models.js");
-const { checkArticleExists } = require("../models/utils");
+const {
+  checkArticleExists,
+  checkTopicExists,
+  checkQueryIsValid,
+} = require("../models/utils");
 
 exports.getTopics = (req, res, next) => {
   fetchTopics()
@@ -29,12 +33,17 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
+  const query = req.query;
   const sortBy = req.query.sort_by;
   const order = req.query.order;
   const topic = req.query.topic;
 
-  fetchArticles(sortBy, order, topic)
-    .then((articles) => {
+  Promise.all([
+    fetchArticles(sortBy, order, topic),
+    checkTopicExists(topic),
+    checkQueryIsValid(query),
+  ])
+    .then(([articles]) => {
       res.status(200).send({ articles });
     })
     .catch((err) => {
@@ -44,6 +53,7 @@ exports.getArticles = (req, res, next) => {
 
 exports.getArticleById = (req, res, next) => {
   const id = req.params.article_id;
+
   Promise.all([fetchArticleById(id), checkArticleExists(id)])
     .then(([article]) => {
       res.status(200).send({ article });
@@ -55,6 +65,7 @@ exports.getArticleById = (req, res, next) => {
 
 exports.getCommentsByArticleId = (req, res, next) => {
   const id = req.params.article_id;
+
   Promise.all([fetchCommentsByArticleId(id), checkArticleExists(id)])
     .then(([comments]) => {
       res.status(200).send({ comments });
@@ -67,6 +78,7 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.patchArticleById = (req, res, next) => {
   const id = req.params.article_id;
   const votes = req.body.inc_votes;
+
   Promise.all([updateArticleById(id, votes), checkArticleExists(id)])
     .then(([article]) => {
       res.status(200).send({ article });
