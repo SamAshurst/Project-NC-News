@@ -409,6 +409,16 @@ describe("APP", () => {
       });
     });
   });
+  describe("Delete", () => {
+    describe("/api/comments/comment_id", () => {
+      test("Responds with Status 204 when comment_id is valid", () => {
+        return request(app).delete("/api/comments/1").expect(204);
+      });
+      test("After deleting a comment the length of the comments table will now be 17 instead of 18 with no comment_id of 1 ", () => {
+        return request(app).delete("/api/comments/1").expect(204);
+      });
+    });
+  });
 });
 describe("Error Handling", () => {
   describe("Invalid Endpoint", () => {
@@ -543,6 +553,30 @@ describe("Error Handling", () => {
             .expect(401)
             .then((response) => {
               expect(response.body.msg).toBe("Unauthorised user");
+            });
+        });
+      });
+    });
+  });
+  describe("Delete", () => {
+    describe("/api/comments/:comment_id", () => {
+      describe("Status: 400", () => {
+        test("Status: 400 - Responds with a msg stating invalid id when given a word instead of a number", () => {
+          return request(app)
+            .delete("/api/comments/NotANumber")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Invalid id");
+            });
+        });
+      });
+      describe("Status: 404", () => {
+        test("Status: 404 - Responds with a msg when trying to delete a comment_id that does not exist", () => {
+          return request(app)
+            .delete("/api/comments/80")
+            .expect(404)
+            .then((response) => {
+              expect(response.body.msg).toBe("Sorry that id does not exist");
             });
         });
       });
