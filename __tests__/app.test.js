@@ -475,6 +475,48 @@ describe("Error Handling", () => {
       });
     });
   });
+  describe("Post", () => {
+    describe("/api/articles/:article_id/comments", () => {
+      describe("Status: 400", () => {
+        test("Status: 400 - Responds with bad request when there is no username provided", () => {
+          return request(app)
+            .post("/api/articles/2/comments")
+            .send({ body: "No username" })
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+        test("Status: 400 - Responds with bad request when no comment body is provided", () => {
+          return request(app)
+            .post("/api/articles/2/comments")
+            .send({ username: "butter_bridge" })
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+        test("Status: 400 - Responds with bad request when the comment body is not a string", () => {
+          return request(app)
+            .post("/api/articles/2/comments")
+            .send({ username: "butter_bridge", body: 123 })
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+      });
+      describe("Status: 401", () => {
+        test("Status: 401 - Responds with unauthorised when the post request meets the criteria however the username does not exist in our database", () => {
+          return request(app)
+            .post("/api/articles/2/comments")
+            .send({ username: "unknown", body: "mystery" })
+            .expect(401)
+            .then((response) => {
+              expect(response.body.msg).toBe("Unauthorised user");
+            });
+        });
+      });
+    });
+  });
 });
-// START ON ERROR HANDLING FOR POST COMMENT
-// 17TH FEB

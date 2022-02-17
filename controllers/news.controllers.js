@@ -65,6 +65,7 @@ exports.postCommentByArticleId = (req, res, next) => {
   const id = req.params.article_id;
   const username = req.body.username;
   const commentBody = req.body.body;
+
   insertCommentByArticleId(id, username, commentBody)
     .then((comment) => {
       res.status(201).send({ comment });
