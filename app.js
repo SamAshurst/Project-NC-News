@@ -7,6 +7,7 @@ const {
   getCommentsByArticleId,
   postCommentByArticleId,
   patchArticleById,
+  removeCommentById,
 } = require("./controllers/news.controllers.js");
 
 const {
@@ -27,6 +28,8 @@ app.get("/api/users", getUsers);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 
 app.patch("/api/articles/:article_id", patchArticleById);
+
+app.delete("/api/comments/:comment_id", removeCommentById);
 
 app.all("/*", invalidEndpoint);
 app.use(handlePsqlErrors);
