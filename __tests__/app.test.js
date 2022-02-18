@@ -360,6 +360,24 @@ describe("APP", () => {
           });
       });
     });
+    describe("/users/:username", () => {
+      test("Responds with Status 200 when given a valid username", () => {
+        return request(app).get("/api/users/butter_bridge").expect(200);
+      });
+      test("The return body will be an object containing the correct keys for the username requested", () => {
+        return request(app)
+          .get("/api/users/butter_bridge")
+          .expect(200)
+          .then(({ body: { user } }) => {
+            expect(user).toEqual({
+              username: "butter_bridge",
+              avatar_url:
+                "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+              name: "jonny",
+            });
+          });
+      });
+    });
   });
   describe("Patch", () => {
     describe("/api/articles/:article_id", () => {
@@ -595,6 +613,28 @@ describe("Error Handling", () => {
             .expect(404)
             .then((response) => {
               expect(response.body.msg).toBe("Sorry that topic does not exist");
+            });
+        });
+      });
+    });
+    describe("/api/users/:username", () => {
+      describe("Status:400", () => {
+        test("Status: 400 - Responds with a msg stating invalid username when giving a numner instead of a word/name", () => {
+          return request(app)
+            .get("/api/users/1")
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Invalid username");
+            });
+        });
+      });
+      describe("Status:404", () => {
+        test("Status: 404 - Responds with a msg when the requested username does not exist", () => {
+          return request(app)
+            .get("/api/users/NotAUser")
+            .expect(404)
+            .then((response) => {
+              expect(response.body.msg).toBe("User does not exist");
             });
         });
       });
