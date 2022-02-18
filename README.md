@@ -68,7 +68,7 @@ npm run seed
 ```
 npm start
 ```
-You can use software such as Insomnia to make request using
+You can use software such as Insomnia to make requests using
  `http://localhost:9090`
 
 ## Testing
