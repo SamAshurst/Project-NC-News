@@ -1,40 +1,15 @@
 const {
-  fetchTopics,
-  fetchUsers,
   fetchArticles,
   fetchArticleById,
   fetchCommentsByArticleId,
-  insertCommentByArticleId,
   updateArticleById,
-  deleteCommentById,
-} = require("../models/news.models.js");
+  insertCommentByArticleId,
+} = require("../models/articles.models");
 const {
-  checkArticleExists,
   checkTopicExists,
   checkQueryIsValid,
-  checkCommentExists,
+  checkArticleExists,
 } = require("../models/utils");
-const endpointJson = require("../endpoints.json");
-
-exports.getTopics = (req, res, next) => {
-  fetchTopics()
-    .then((topics) => {
-      res.status(200).send({ topics });
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
-exports.getUsers = (req, res, next) => {
-  fetchUsers()
-    .then((users) => {
-      res.status(200).send({ users });
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
 
 exports.getArticles = (req, res, next) => {
   const query = req.query;
@@ -79,20 +54,6 @@ exports.getCommentsByArticleId = (req, res, next) => {
     });
 };
 
-exports.postCommentByArticleId = (req, res, next) => {
-  const id = req.params.article_id;
-  const username = req.body.username;
-  const commentBody = req.body.body;
-
-  insertCommentByArticleId(id, username, commentBody)
-    .then((comment) => {
-      res.status(201).send({ comment });
-    })
-    .catch((err) => {
-      next(err);
-    });
-};
-
 exports.patchArticleById = (req, res, next) => {
   const id = req.params.article_id;
   const votes = req.body.inc_votes;
@@ -106,18 +67,16 @@ exports.patchArticleById = (req, res, next) => {
     });
 };
 
-exports.removeCommentById = (req, res, next) => {
-  const id = req.params.comment_id;
+exports.postCommentByArticleId = (req, res, next) => {
+  const id = req.params.article_id;
+  const username = req.body.username;
+  const commentBody = req.body.body;
 
-  Promise.all([checkCommentExists(id), deleteCommentById(id)])
-    .then(() => {
-      res.sendStatus(204);
+  insertCommentByArticleId(id, username, commentBody)
+    .then((comment) => {
+      res.status(201).send({ comment });
     })
     .catch((err) => {
       next(err);
     });
-};
-
-exports.getEndpoints = (req, res, next) => {
-  res.status(200).send(endpointJson);
 };
