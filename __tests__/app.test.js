@@ -80,7 +80,7 @@ describe("APP", () => {
                 topic: "mitch",
                 author: "icellusedkars",
                 body: "Delicious tin of cat food",
-                created_at: "2020-10-18T01:00:00.000Z",
+                created_at: expect.any(String),
                 votes: 0,
               })
             );
