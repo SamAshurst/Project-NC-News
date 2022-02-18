@@ -86,10 +86,12 @@ This project currently has the following endpoints:
 * GET /api - Which servers a JSON object of all available endpoints with queries available and an example response
 * GET /api/topics - Which serves a list of all topics
 * GET /api/users - Serves a list of all usernames
+* GET /api/users/:username - Responds with the user with the requested username
 * GET /api/articles - Serves a list of all articles
 * GET /api/articles/:article_id - Responds with the article on the requested id
 * GET /api/articles/:article_id/comments - Serves all the comments for the requested id
 * POST /api/articles/:article_id/comments - Adds a new comment to the requested id and will return with the newly created comment
 * PATCH /api/articles/:article_id - Able to increase or decrease votes on the requested article
+* PATCH /api/comments/:comment_id - Able to increase or decrease votes on the requested comment
 * DELETE /api/comments/:comment_id - Delete a comment on the requested id 
 
