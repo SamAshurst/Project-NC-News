@@ -23,7 +23,7 @@ jobs:
           postgresql password: test_password
 
       - name: Test Utils
-        run: npm test utils
+        run: PGDATABASE=test_db PGUSER=test_user PGPASSWORD=test_password npm test utils
 
       - name: Test Endpoints
         run: PGDATABASE=test_db PGUSER=test_user PGPASSWORD=test_password npm test app

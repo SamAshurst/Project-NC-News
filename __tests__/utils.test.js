@@ -3,11 +3,6 @@ const {
   createRef,
   formatComments,
 } = require("../db/helpers/utils");
-const seed = require("../db/seeds/seed.js");
-const data = require("../db/data/test-data/index.js");
-
-beforeEach(() => seed(data));
-afterAll(() => db.end());
 
 describe("convertTimestampToDate", () => {
   test("returns a new object", () => {
