@@ -427,6 +427,88 @@ describe("APP", () => {
           });
       });
     });
+    describe("/api/comments/:comment_id", () => {
+      test("Responds with Status 200 and the article when all information required is correct", () => {
+        return request(app)
+          .patch("/api/comments/1")
+          .send({ inc_votes: 1 })
+          .expect(200)
+          .then(({ body: { comment } }) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: 1,
+                article_id: expect.any(Number),
+                author: expect.any(String),
+                body: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+              })
+            );
+          });
+      });
+      test("When given inc_votes: 1, it will return test comment 1 with 17 votes", () => {
+        return request(app)
+          .patch("/api/comments/1")
+          .send({ inc_votes: 1 })
+          .expect(200)
+          .then(({ body: { comment } }) => {
+            expect(comment.votes).toBe(17);
+          });
+      });
+      test("When given inc_votes: -1, it will return test comment 1 with 15 votes", () => {
+        return request(app)
+          .patch("/api/comments/1")
+          .send({ inc_votes: -1 })
+          .expect(200)
+          .then(({ body: { comment } }) => {
+            expect(comment.votes).toBe(15);
+          });
+      });
+      test("Will successfully patch votes twice in a row, mimicking real use case", () => {
+        const patch = () => {
+          return request(app)
+            .patch("/api/comments/1")
+            .send({ inc_votes: 1 })
+            .then(({ body: { comment } }) => {
+              return comment;
+            });
+        };
+        return Promise.all([patch(), patch()]).then((promise) => {
+          expect(promise[0].votes).toBe(17);
+          expect(promise[1].votes).toBe(18);
+        });
+      });
+      test("Will successfully patch votes twice in a row, increment and decrement, mimicking real use case", () => {
+        const patchInc = () => {
+          return request(app)
+            .patch("/api/comments/1")
+            .send({ inc_votes: 1 })
+            .then(({ body: { comment } }) => {
+              return comment;
+            });
+        };
+        const patchDec = () => {
+          return request(app)
+            .patch("/api/comments/1")
+            .send({ inc_votes: -7 })
+            .then(({ body: { comment } }) => {
+              return comment;
+            });
+        };
+        return Promise.all([patchInc(), patchDec()]).then((promise) => {
+          expect(promise[0].votes).toBe(17);
+          expect(promise[1].votes).toBe(10);
+        });
+      });
+      test("Will return a negative number with a comment with 0 votes gets a patch with inc_votes: -1", () => {
+        return request(app)
+          .patch("/api/comments/5")
+          .send({ inc_votes: -1 })
+          .then(({ body: { comment } }) => {
+            expect(comment.votes).toBe(-1);
+          });
+      });
+    });
   });
   describe("Post", () => {
     describe("/api/articles/:article_id/comments", () => {
@@ -626,6 +708,39 @@ describe("Error Handling", () => {
         test("Status: 404 - Returns a msg when trying to patch and article with an id that does not exist", () => {
           return request(app)
             .patch("/api/articles/500")
+            .send({ inc_votes: 1 })
+            .expect(404)
+            .then((response) => {
+              expect(response.body.msg).toBe("Sorry that id does not exist");
+            });
+        });
+      });
+    });
+    describe("/api/comments/:comment_id", () => {
+      describe("Status: 400", () => {
+        test("Status: 400 - Responds with a msg when article id exists but there is no inc_votes on the request body", () => {
+          return request(app)
+            .patch("/api/comments/1")
+            .send({})
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+        test("Status: 400 - Responds with a msg when article id exists but inc_votes is not a number", () => {
+          return request(app)
+            .patch("/api/comments/1")
+            .send({ inc_votes: "upvote" })
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe("Bad Request");
+            });
+        });
+      });
+      describe("Status: 404", () => {
+        test("Status: 404 - Returns a msg when trying to patch and comment with an id that does not exist", () => {
+          return request(app)
+            .patch("/api/comments/404")
             .send({ inc_votes: 1 })
             .expect(404)
             .then((response) => {
