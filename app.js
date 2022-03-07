@@ -8,8 +8,8 @@ const {
   handlePsqlErrors,
 } = require("./controllers/errors.controllers");
 
-app.use(cors());
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.use("/api", apiRouter);
