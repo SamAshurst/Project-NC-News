@@ -315,7 +315,7 @@ describe("APP", () => {
             expect(typeof comments[0]).toBe("object");
           });
       });
-      test("It will return the correct amount of comments fo the specified article, article 1 should return 11 comments", () => {
+      test("It will return the correct amount of comments for the specified article, article 1 should return 11 comments", () => {
         return request(app)
           .get("/api/articles/1/comments")
           .expect(200)
@@ -571,12 +571,20 @@ describe("APP", () => {
               expect.objectContaining({
                 comment_id: 19,
                 body: "first",
+                article_id: expect.any(Number),
+                author: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
               })
             );
             expect(second).toEqual(
               expect.objectContaining({
                 comment_id: 20,
                 body: "second",
+                article_id: expect.any(Number),
+                author: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
               })
             );
           }
